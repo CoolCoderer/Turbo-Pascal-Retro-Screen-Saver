@@ -1,0 +1,70 @@
+Program Screensaver;
+
+Uses
+  Crt, Dos;
+
+Const
+  ScreenWidth = 80;
+  ScreenHeight = 25;
+
+Var
+  OriginalVideoMode: Byte;
+  Event: TEvent;
+
+Procedure SetVideoMode(mode: Byte);
+begin
+  asm
+    mov ah, 0
+    mov al, mode
+    int 10h
+  end;
+end;
+
+Procedure Init;
+begin
+  ClrScr;
+  OriginalVideoMode := TextMode;
+  SetVideoMode($13); // Set VGA 320x200 256-color graphics mode
+end;
+
+Procedure Shutdown;
+begin
+  SetVideoMode(OriginalVideoMode);
+end;
+
+Procedure DrawScreensaver;
+var
+  i, j: Integer;
+begin
+  Randomize;
+
+  repeat
+    for i := 1 to ScreenWidth do
+      for j := 1 to ScreenHeight do
+      begin
+        TextColor(Random(256));
+        GotoXY(i, j);
+        Write(Chr(Random(256)));
+      end;
+
+    Delay(100); // Adjust the delay to control the screensaver speed
+
+  until KeyPressed;
+
+  ReadKey; // Clear the key buffer
+end;
+
+begin
+  Init;
+
+  repeat
+    GetKeyEvent(Event);
+
+    case Event.What of
+      evNothing: DrawScreensaver;
+    end;
+
+  until Event.What = evKeyDown;
+
+  Shutdown;
+end.
