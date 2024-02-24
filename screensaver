@@ -1,17 +1,17 @@
-Program Screensaver;
+program Screensaver;
 
-Uses
+uses
   Crt, Dos;
 
-Const
+const
   ScreenWidth = 80;
   ScreenHeight = 25;
 
-Var
+var
   OriginalVideoMode: Byte;
-  Event: TEvent;
+  Key: Char;
 
-Procedure SetVideoMode(mode: Byte);
+procedure SetVideoMode(mode: Byte);
 begin
   asm
     mov ah, 0
@@ -20,19 +20,19 @@ begin
   end;
 end;
 
-Procedure Init;
+procedure Init;
 begin
   ClrScr;
   OriginalVideoMode := TextMode;
   SetVideoMode($13); // Set VGA 320x200 256-color graphics mode
 end;
 
-Procedure Shutdown;
+procedure Shutdown;
 begin
   SetVideoMode(OriginalVideoMode);
 end;
 
-Procedure DrawScreensaver;
+procedure DrawScreensaver;
 var
   i, j: Integer;
 begin
@@ -51,20 +51,15 @@ begin
 
   until KeyPressed;
 
-  ReadKey; // Clear the key buffer
+  Key := ReadKey; // Read the key pressed to exit the screensaver
 end;
 
 begin
   Init;
 
   repeat
-    GetKeyEvent(Event);
-
-    case Event.What of
-      evNothing: DrawScreensaver;
-    end;
-
-  until Event.What = evKeyDown;
+    DrawScreensaver;
+  until Key = #27; // Exit the screensaver on the Esc key
 
   Shutdown;
 end.
